@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: canary-rollout
+spec:
+  replicas: 4
+  selector:
+    matchlabels:
+      app: canary-rollout
+  template:
+    metadata:
+      labels:
+        app: canary-rollout
+    spec:
+      containers:
+      - name: guestbook
+        image: argoproj/rollouts-demo:blue
+        ports:
+        - containerPort: 3433
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 40
+      - pause: {duration: 10}
+      - setWeight: 60
+      - pause: {duration: 20}
+      - setWeight: 80
+      - pause: {}
+      - setWeight: 100
+      
