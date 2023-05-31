@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: active-service
+spec:
+  selector:
+    app: blue-green-rollout
+  ports:
+  - port: 3433
+    targetPort: 3433

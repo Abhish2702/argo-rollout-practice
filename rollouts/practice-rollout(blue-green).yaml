@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: blue-green-rollout
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: blue-green-rollout
+  template:
+    metadata:
+      labels:
+        app: blue-green-rollout
+    spec:
+      containers:
+      - name: guestbook
+        image: argoproj/rollouts-demo:yellow
+        ports:
+        - containerPort: 3433
+  strategy:
+    blueGreen:
+      activeService: active-service
+      prePromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: guestbook-svc.default.svc.cluster.local
+
+      # Post-promotion analysis run which performs analysis after the service
+      # cutover. +optional
+      postPromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: guestbook-svc.default.svc.cluster.local
+
+      # Name of the service that the rollout modifies as the preview service.
+      # +optional
+      previewService: preview-service
+
+      # The number of replicas to run under the preview service before the
+      # switchover. Once the rollout is resumed the new ReplicaSet will be fully
+      # scaled up before the switch occurs +optional
+      previewReplicaCount: 1
+
+      # Indicates if the rollout should automatically promote the new ReplicaSet
+      # to the active service or enter a paused state. If not specified, the
+      # default value is true. +optional
+      autoPromotionEnabled: false
+
+      # Automatically promotes the current ReplicaSet to active after the
+      # specified pause delay in seconds after the ReplicaSet becomes ready.
+      # If omitted, the Rollout enters and remains in a paused state until
+      # manually resumed by resetting spec.Paused to false. +optional
+      autoPromotionSeconds: 30
+
+      # Adds a delay before scaling down the previous ReplicaSet. If omitted,
+      # the Rollout waits 30 seconds before scaling down the previous ReplicaSet.
+      # A minimum of 30 seconds is recommended to ensure IP table propagation
+      # across the nodes in a cluster.
+      scaleDownDelaySeconds: 30
+
+      # Limits the number of old RS that can run at once before getting scaled
+      # down. Defaults to nil
+      scaleDownDelayRevisionLimit: 2
+
+      # Add a delay in second before scaling down the preview replicaset
+      # if update is aborted. 0 means not to scale down. Default is 30 second
+      abortScaleDownDelaySeconds: 30
+
+      # Anti Affinity configuration between desired and previous ReplicaSet.
+      # Only one must be specified
+      antiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: {}
+        preferredDuringSchedulingIgnoredDuringExecution:
+          weight: 1 
