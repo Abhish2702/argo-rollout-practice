@@ -20,21 +20,21 @@ spec:
   strategy:
     blueGreen:
       activeService: active-service
-      prePromotionAnalysis:
-        templates:
-        - templateName: success-rate
-        args:
-        - name: service-name
-          value: guestbook-svc.default.svc.cluster.local
+      # prePromotionAnalysis:
+      #   templates:
+      #   - templateName: success-rate
+      #   args:
+      #   - name: service-name
+      #     value: guestbook-svc.default.svc.cluster.local
 
       # Post-promotion analysis run which performs analysis after the service
       # cutover. +optional
-      postPromotionAnalysis:
-        templates:
-        - templateName: success-rate
-        args:
-        - name: service-name
-          value: guestbook-svc.default.svc.cluster.local
+      # postPromotionAnalysis:
+      #   templates:
+      #   - templateName: success-rate
+      #   args:
+      #   - name: service-name
+      #     value: guestbook-svc.default.svc.cluster.local
 
       # Name of the service that the rollout modifies as the preview service.
       # +optional
